@@ -962,7 +962,8 @@
     async function renderEntries() {
       const list = document.getElementById('entries-list');
 
-      const { data: entries, error } = await window._window._supabaseClient
+      const { data: entries, error } = await window._supabaseClient
+
         .from('beer_entries')
         .select('*')
         .order('created_at', { ascending: false });
