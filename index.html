@@ -278,6 +278,24 @@
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
+    .btn-delete {
+      margin-top: 10px;
+      padding: 5px 12px;
+      background: transparent;
+      color: #b07050;
+      font-family: 'Caveat', cursive;
+      font-size: 0.9rem;
+      border: 1px solid #b07050;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-delete:hover {
+      background: #b07050;
+      color: #fdf8f0;
+    }
+
     .btn-save:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(90, 130, 70, 0.4);
@@ -942,6 +960,17 @@
       renderEntries();
     }
 
+    async function deleteEntry(id) {
+      if (!confirm('この記録を削除しますか？')) return;
+      const { error } = await window._supabaseClient
+        .from('beer_entries')
+        .delete()
+        .eq('id', id);
+      if (error) { alert('削除に失敗しました💦\n' + error.message); return; }
+      renderEntries();
+    }
+
+
     function resetForm() {
       document.getElementById('input-name').value = '';
       document.getElementById('input-brewery').value = '';
@@ -994,7 +1023,8 @@
           ${e.style ? ' / ' + e.style : ''}
         </div>
         ${e.note ? '<div class="entry-note">' + e.note + '</div>' : ''}
-        <div class="entry-stars">${'🌿'.repeat(e.rating)}</div>
+<div class="entry-stars">${'🌿'.repeat(e.rating)}</div>
+        <button onclick="deleteEntry(${e.id})" class="btn-delete">🗑️ 削除</button>
       </div>
       ${e.image ? '<img class="entry-img" src="' + e.image + '">' : ''}
     </div>
