@@ -854,10 +854,6 @@
       });
     }
 
-    styleSelect.innerHTML = '<option value="">スタイルを選ぶ</option>' +
-      styleOptions[category].map(s => `<option>${s}</option>`).join('');
-    }
-
     let currentImageData = null;
 
     document.getElementById('input-image').addEventListener('change', function (e) {
