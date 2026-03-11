@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍺 My Craft Beer Diary</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Noto+Serif+JP:wght@400;600&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #f5f0e8;
+      background-image:
+        radial-gradient(ellipse at 10% 10%, #e8f0e0 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 90%, #f0e0d0 0%, transparent 50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    .site-header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .site-header h1 {
+      font-family: 'Caveat', cursive;
+      font-size: 3rem;
+      color: #5c7a4e;
+      letter-spacing: 3px;
+      text-shadow: 1px 2px 0px #d4c5a0;
+    }
+
+    .site-header .subtitle {
+      color: #b07050;
+      font-size: 0.78rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .botanical-svg {
+      width: 100%;
+      max-width: 680px;
+      height: 40px;
+      opacity: 0.55;
+    }
+
+    .diary-cover {
+      width: 100%;
+      max-width: 680px;
+      background-color: #fdf8f0;
+      border-radius: 12px;
+      box-shadow:
+        0 2px 0 #d4c5a0,
+        0 6px 30px rgba(100, 80, 50, 0.15),
+        0 2px 8px rgba(100, 80, 50, 0.1);
+      overflow: hidden;
+      position: relative;
+      border: 1.5px solid #e0d4b8;
+    }
+
+    .diary-cover::before {
+      content: '';
+      display: block;
+      height: 6px;
+      background: linear-gradient(to right, #7a9e6a, #b07050, #d4a84b, #7a9e6a);
+    }
+
+    .diary-inner {
+      padding: 36px 40px 40px;
+    }
+
+    .section-title {
+      font-family: 'Caveat', cursive;
+      font-size: 1.55rem;
+      color: #5c7a4e;
+      padding-bottom: 10px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1.5px dashed #c8b990;
+    }
+
+    .form-section {
+      background: rgba(122, 158, 106, 0.07);
+      border: 1.5px solid #c8d8b8;
+      border-radius: 10px;
+      padding: 26px;
+      margin-bottom: 36px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.7rem;
+      color: #8a6a40;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #c8b990;
+      padding: 7px 2px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.05rem;
+      color: #4a3a28;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      border-radius: 0;
+      width: 100%;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-bottom-color: #7a9e6a;
+      background: rgba(122, 158, 106, 0.06);
+    }
+
+    textarea {
+      border: 1.5px solid #c8b990;
+      border-radius: 6px;
+      padding: 10px;
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      border-color: #7a9e6a;
+    }
+
+    .image-upload-area {
+      border: 2px dashed #c8b990;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.5);
+      position: relative;
+    }
+
+    .image-upload-area:hover {
+      border-color: #7a9e6a;
+      background: rgba(122, 158, 106, 0.08);
+    }
+
+    .image-upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .upload-placeholder {
+      pointer-events: none;
+    }
+
+    .upload-placeholder .upload-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .upload-placeholder p {
+      font-family: 'Caveat', cursive;
+      font-size: 1rem;
+      color: #9a8060;
+    }
+
+    .upload-placeholder small {
+      font-size: 0.72rem;
+      color: #b0a080;
+      letter-spacing: 1px;
+    }
+
+    #preview-image {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 8px;
+      display: none;
+      margin: 0 auto;
+      object-fit: contain;
+    }
+
+    .rating-group {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .rating-group span {
+      font-size: 1.5rem;
+      cursor: pointer;
+      filter: grayscale(0.6) opacity(0.5);
+      transition: filter 0.15s, transform 0.15s;
+      user-select: none;
+    }
+
+    .rating-group span:hover,
+    .rating-group span.active {
+      filter: grayscale(0) opacity(1);
+      transform: scale(1.2);
+    }
+
+    .btn-save {
+      display: block;
+      width: 100%;
+      margin-top: 22px;
+      padding: 13px;
+      background: linear-gradient(135deg, #7a9e6a, #5c7a4e);
+      color: #fdf8f0;
+      font-family: 'Caveat', cursive;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(90, 130, 70, 0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(90, 130, 70, 0.4);
+    }
+
+    .entry-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1.5px solid #e0d4b8;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(100, 80, 50, 0.07);
+      transition: transform 0.15s;
+    }
+
+    .entry-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .entry-card .entry-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1.5px solid #e0d4b8;
+      align-self: start;
+    }
+
+    .entry-body {
+      grid-column: 1;
+    }
+
+    .entry-date {
+      font-size: 0.7rem;
+      color: #b07050;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .entry-name {
+      font-family: 'Caveat', cursive;
+      font-size: 1.4rem;
+      color: #3a2e1e;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .entry-meta {
+      font-size: 0.78rem;
+      color: #7a6040;
+      margin: 5px 0 8px;
+    }
+
+    .entry-note {
+      font-size: 0.88rem;
+      color: #5a4a30;
+      line-height: 1.75;
+    }
+
+    .entry-stars {
+      font-size: 0.95rem;
+      margin-top: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: #b0a080;
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      line-height: 2;
+    }
+
+    .site-footer {
+      margin-top: 32px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .footer-author {
+      font-family: 'Caveat', cursive;
+      font-size: 1.8rem;
+      color: #7a9e6a;
+      letter-spacing: 6px;
+      margin-bottom: 6px;
+    }
+
+    .footer-copy {
+      color: #9a8060;
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+    }
+
+    .footer-disclaimer {
+      font-size: 0.68rem;
+      color: #b0a080;
+      line-height: 1.8;
+      letter-spacing: 0.5px;
+      max-width: 560px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ボタニカル上部 -->
+  <svg class="botanical-svg" viewBox="0 0 680 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M0 20 Q 40 5, 80 20 Q 120 35, 160 20 Q 200 5, 240 20 Q 280 35, 320 20 Q 360 5, 400 20 Q 440 35, 480 20 Q 520 5, 560 20 Q 600 35, 640 20 Q 660 13, 680 20"
+      stroke="#7a9e6a" stroke-width="1.5" fill="none" />
+    <circle cx="80" cy="10" r="4" fill="#b07050" opacity="0.6" />
+    <circle cx="240" cy="10" r="3" fill="#7a9e6a" opacity="0.6" />
+    <circle cx="400" cy="10" r="4" fill="#d4a84b" opacity="0.6" />
+    <circle cx="560" cy="10" r="3" fill="#b07050" opacity="0.6" />
+    <ellipse cx="160" cy="30" rx="8" ry="4" fill="#7a9e6a" opacity="0.4" transform="rotate(-20 160 30)" />
+    <ellipse cx="320" cy="8" rx="8" ry="4" fill="#7a9e6a" opacity="0.4" transform="rotate(15 320 8)" />
+    <ellipse cx="480" cy="30" rx="8" ry="4" fill="#b07050" opacity="0.3" transform="rotate(-15 480 30)" />
+  </svg>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+      style="margin-bottom: 8px;">
+      <rect x="12" y="30" width="46" height="58" rx="6" fill="#f5e6b0" stroke="#b07050" stroke-width="2" />
+      <rect x="12" y="76" width="46" height="12" rx="5" fill="#e8d090" stroke="#b07050" stroke-width="2" />
+      <rect x="14" y="46" width="42" height="40" rx="4" fill="#d4a84b" opacity="0.85" />
+      <ellipse cx="35" cy="46" rx="21" ry="8" fill="#fdf8f0" stroke="#e0d0a0" stroke-width="1" />
+      <ellipse cx="24" cy="44" rx="7" ry="6" fill="#ffffff" opacity="0.9" />
+      <ellipse cx="36" cy="42" rx="8" ry="7" fill="#ffffff" opacity="0.95" />
+      <ellipse cx="47" cy="44" rx="6" ry="5" fill="#ffffff" opacity="0.85" />
+      <path d="M58 40 Q78 40 78 58 Q78 76 58 76" stroke="#b07050" stroke-width="3.5" fill="none"
+        stroke-linecap="round" />
+      <ellipse cx="18" cy="28" rx="7" ry="3.5" fill="#7a9e6a" opacity="0.75" transform="rotate(-35 18 28)" />
+      <ellipse cx="10" cy="24" rx="6" ry="3" fill="#5c7a4e" opacity="0.65" transform="rotate(-50 10 24)" />
+      <ellipse cx="52" cy="27" rx="7" ry="3.5" fill="#7a9e6a" opacity="0.75" transform="rotate(35 52 27)" />
+      <ellipse cx="60" cy="23" rx="6" ry="3" fill="#5c7a4e" opacity="0.65" transform="rotate(50 60 23)" />
+      <line x1="35" y1="30" x2="35" y2="20" stroke="#7a9e6a" stroke-width="1.5" stroke-linecap="round" />
+      <circle cx="25" cy="65" r="2" fill="#f0c84a" opacity="0.5" />
+      <circle cx="38" cy="72" r="1.5" fill="#f0c84a" opacity="0.4" />
+      <circle cx="48" cy="60" r="2" fill="#f0c84a" opacity="0.45" />
+      <circle cx="30" cy="78" r="1.5" fill="#f0c84a" opacity="0.4" />
+    </svg>
+    <h1>My Craft Beer Diary</h1>
+    <p class="subtitle">— Japan Craft Beer Journey —</p>
+  </header>
+
+  <!-- ボタニカル下部 -->
+  <svg class="botanical-svg" viewBox="0 0 680 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M0 20 Q 40 35, 80 20 Q 120 5, 160 20 Q 200 35, 240 20 Q 280 5, 320 20 Q 360 35, 400 20 Q 440 5, 480 20 Q 520 35, 560 20 Q 600 5, 640 20 Q 660 27, 680 20"
+      stroke="#b07050" stroke-width="1.5" fill="none" />
+    <ellipse cx="160" cy="10" rx="7" ry="3.5" fill="#7a9e6a" opacity="0.4" transform="rotate(20 160 10)" />
+    <ellipse cx="400" cy="32" rx="7" ry="3.5" fill="#7a9e6a" opacity="0.4" transform="rotate(-20 400 32)" />
+    <circle cx="320" cy="32" r="3.5" fill="#d4a84b" opacity="0.5" />
+  </svg>
+
+  <!-- 日記帳 -->
+  <main class="diary-cover">
+    <div class="diary-inner">
+
+      <section class="form-section">
+        <h2 class="section-title">✏️ 新しい一杯を記録する</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>📅 Date</label>
+            <input type="date" id="input-date" />
+          </div>
+          <div class="form-group">
+            <label>🍺 Beer Name</label>
+            <input type="text" id="input-name" placeholder="ビール名を入力または選択" list="beer-list" autocomplete="off" />
+            <datalist id="beer-list">
+              <option>横浜ビール グリーンシトラスピルスナー</option>
+              <option>忽布古丹醸造 HOP KOTAN GOLDEN HOP</option>
+              <option>FUJI PREMIUM ベルジャンホワイト</option>
+              <option>FUJI PREMIUM セッションIPA[GABA＋]</option>
+              <option>スワンレイク Session IPA</option>
+              <option>宮島ビール HAZY IPA</option>
+              <option>FUJI PREMIUM ラガービール</option>
+              <option>富士麦酒醸造所 ライスラガー</option>
+              <option>富士麦酒醸造所 ペールエール</option>
+              <option>横浜ビール 横浜ラガー</option>
+              <option>鎌倉ビール ROUTE134BEER</option>
+              <option>仙南クラフトビール ササニシキIPA</option>
+              <option>FUJI PREMIUM ヴァイツェン[小麦のビール]</option>
+              <option>FUJI PREMIUM 静岡すっぱみかんフルーツエール</option>
+              <option>仙南クラフトビール ピルスナー</option>
+              <option>仙南クラフトビール ヴァイツェン</option>
+              <option>FUJI PREMIUM FUJICRAFT IPA ノンアルコール</option>
+              <option>FUJI PREMIUM CLASSIC IPA</option>
+              <option>FUJI PREMIUM ゴールデンマイスター[無濾過]</option>
+              <option>北海道乙部 Otb Endeavourホワイト</option>
+              <option>KAMIKATZ BEER カミカツ IPA</option>
+              <option>KAMIKATZ BEER カミカツ ペールエール</option>
+              <option>CRAFT BANK BANK LAGER</option>
+              <option>CRAFT BANK BANK IPA</option>
+              <option>MARCA BREWING PALE ALE</option>
+              <option>MARCA BREWING GOLDEN ALE</option>
+              <option>DistantShores LeapFrog IPA</option>
+              <option>DistantShores Dandelion Fluff</option>
+              <option>FUJI PREMIUM STARDUSTLAGER</option>
+              <option>FUJI PREMIUM FPBTWILIGHT HAZY IPA</option>
+              <option>Brewlab.108 #069 Itaomiki</option>
+              <option>六甲ビール KÖLSCH</option>
+              <option>秋田あくらビール 古代米アンバー</option>
+              <option>秋田あくらビール なまはげIPA</option>
+              <option>立飛麦酒醸造所 ORANGE LAGER</option>
+              <option>立飛麦酒醸造所 Tachihi WEIZEN</option>
+              <option>銚子ビール All for One -build up IPA-</option>
+              <option>銚子ビール One for All SMaSH !!!</option>
+              <option>銚子ビール 犬吠White IPA</option>
+              <option>忽布古丹醸造 nonno-ノンノ-</option>
+              <option>忽布古丹醸造 upopo-ウポポ-</option>
+              <option>スワンレイク スワンレイクビールポーター</option>
+              <option>スワンレイク ゴールデンスワンレイクエール</option>
+              <option>スワンレイク ホワイトスワンヴァイツェン</option>
+              <option>スワンレイク 越乃米こしひかり仕込みビール</option>
+              <option>スワンレイク アンバースワンエール</option>
+              <option>Y.MARKET BREWING ホッピングシャチ</option>
+              <option>岸和田ビール 白鐵</option>
+              <option>希望の丘醸造所 ナックル167A</option>
+              <option>GARCIA 清水みなとWEIZEN BOCK</option>
+              <option>VOYAGER BREWING COPPER</option>
+              <option>ホップガーデンブルワリー HOPJAPAN IPA</option>
+              <option>HORSEHEAD LABS 蒲原エール</option>
+              <option>HORSEHEAD LABS 蒲原ヘイジー</option>
+              <option>HORSEHEAD LABS #15</option>
+              <option>反射炉ビヤ 早雲</option>
+              <option>反射炉ビヤ New World Kölsch</option>
+              <option>KURASHIKI ＃2 OKAYAMA PALE ALE</option>
+              <option>KURASHIKI ＃4 KURASHIKI HAZY IPA</option>
+              <option>KURASHIKI ＃6 KIBIJI AMBER ALE</option>
+              <option>米沢ジャックスブルワリー IPA</option>
+              <option>米沢ジャックスブルワリー セッションIPA</option>
+              <option>米沢ジャックスブルワリー ゴールデンエール</option>
+              <option>ノースアイランドビール ブラウンエール</option>
+              <option>ノースアイランドビール IPA</option>
+              <option>ノースアイランドビール ピルスナー</option>
+              <option>岸和田ビール 鐵工</option>
+              <option>北海道乙部 Otb Endeavour IPA</option>
+              <option>北海道乙部 Otb Endeavourペールエール</option>
+              <option>つくばブルワリー 常陸の不死鳥 ライスセゾン</option>
+              <option>つくばブルワリー 金色姫IPA</option>
+              <option>オラホビール SMOOTH IPA</option>
+              <option>六甲ビール セゾン</option>
+              <option>DD4D 4 O'CLOCK LET'S CALL IT A DAY</option>
+              <option>柏 こまいぬブルワリー こまいぬエール</option>
+              <option>和歌山ブルワリー AGARACRAFT PALEALE</option>
+              <option>和歌山ブルワリー AGARACRAFT IPA</option>
+              <option>さがみビール ペールエール</option>
+              <option>ヘリオス酒造沢内醸造所 ザ・マタギ</option>
+              <option>八ヶ岳ビール タッチダウン ファーストダウン</option>
+              <option>くじゅう高原ビール ブラウンエール 花</option>
+              <option>くじゅう高原ビール 玄米 南蛮宗麟</option>
+              <option>田沢湖ビール バイツェン</option>
+              <option>暁ブルワリー ドラゴンアイ スノー</option>
+              <option>ブルーウッドブリュワリー ペールエール</option>
+              <option>GARCIABREWING インカ帝国IPA</option>
+              <option>GARCIABREWING SOL NACIENTE HAZY IPA DDH</option>
+              <option>OGABREWING BW</option>
+              <option>石見麦酒 XPA552</option>
+              <option>Y.Y.G. BREWERY 新宿ペールエール</option>
+              <option>道後ビール ケルシュ</option>
+              <option>希望の丘醸造所 ザ・スペンサー</option>
+              <option>希望の丘醸造所 クーレット</option>
+              <option>ISHINOMAKI HOP WORKS 巻風エール</option>
+              <option>ISHINOMAKI HOP WORKS 巻風IPA</option>
+              <option>ISHINOMAKI HOP WORKS 巻風WHEAT</option>
+              <option>嬬恋高原ブルワリー つまブルIPA</option>
+              <option>嬬恋高原ブルワリー つまブルペールエール</option>
+              <option>嬬恋高原ブルワリー つまブルピルスナー</option>
+              <option>HOPDOG FaRM to YOU DDH IPA</option>
+              <option>HOPDOG FaRM to YOU DDH Hazy IPA</option>
+              <option>HINO BREWING ヤレヤレエール</option>
+              <option>HINO BREWING ドントヤレHAZY-IPA</option>
+              <option>SOUTH HORIZON All Aboard</option>
+              <option>SOUTH HORIZON Nap on Deck</option>
+              <option>KOBO BREWERY プレミアントピルスナー</option>
+              <option>KOBO BREWERY 3Aラガー</option>
+              <option>DD4D BREWING Don Jalapeño（ドン ハラペーニョ）</option>
+              <option>TOSACO ゆずペールエール</option>
+              <option>TOSACO こめホワイトエール</option>
+              <option>ウッドミルブルワリー･京都 ペールエール</option>
+              <option>ウッドミルブルワリー･京都 ゴールデンエール</option>
+              <option>VECTOR BREWING ペールエール</option>
+              <option>OGABREWING 緑星</option>
+              <option>南信州ビール AmberAle</option>
+              <option>ヘリオスブルワリー 青い空と海のビール</option>
+              <option>ホップガーデンブルワリー Abukuma RED</option>
+              <option>VECTOR BREWING しろねこぱんち</option>
+              <option>Y.MARKET BREWING ワット ザ ヘル</option>
+              <option>CHORYO Craft Beer ライスラガー</option>
+              <option>TOSACO 土佐IPA</option>
+              <option>TOSACO 和醸ケルシュ</option>
+              <option>柏 こまいぬブルワリー 柏はじめIPA</option>
+              <option>柏 こまいぬブルワリー 将門麦酒</option>
+              <option>阿波岐原クラフトブルワリー Summer Breeze</option>
+              <option>阿波岐原クラフトブルワリー Knee Deep</option>
+              <option>Y.Y.G. BREWERY 代々木アンバーエール</option>
+              <option>Y.Y.G. BREWERY 渋谷IPA</option>
+              <option>和歌山ブルワリー AGARACRAFT ヘイジーIPA</option>
+              <option>和歌山ブルワリー AGARACRAFT ゆずエール</option>
+              <option>GARCIA BREWING 清水ラガー</option>
+              <option>GARCIA BREWING BUENAVISTA日本平</option>
+              <option>HNB 広島日の出ラガー</option>
+              <option>HNB レモブル GO HIROSHIMA</option>
+              <option>ホップガーデンブルワリー HOPJAPAN White</option>
+              <option>OGABREWING 三鷹エール</option>
+              <option>OGABREWING 吉祥寺IPA</option>
+              <option>田沢湖ビール ピルスナー</option>
+              <option>みちのく福島路ビール レッドエール</option>
+              <option>諏訪浪漫ビール 信州浪漫ウィートエール</option>
+              <option>長濱浪漫ビール 長浜エール</option>
+              <option>Brewlab.108 ＃008 Date</option>
+              <option>遠野麦酒ZUMONA TONO BEER C58 239 GOLDEN ALE</option>
+              <option>くじゅう高原ビール BeerOh!風 ヴァイツェン</option>
+              <option>湖畔の杜ビール 味わい天恵</option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>🏭 Brewery</label>
+            <input type="text" id="input-brewery" placeholder="醸造所名" />
+          </div>
+          <div class="form-group">
+            <label>📍 都道府県</label>
+            <select id="input-prefecture">
+              <option value="">都道府県を選ぶ</option>
+              <option>北海道</option>
+              <option>青森県</option>
+              <option>岩手県</option>
+              <option>宮城県</option>
+              <option>秋田県</option>
+              <option>山形県</option>
+              <option>福島県</option>
+              <option>茨城県</option>
+              <option>栃木県</option>
+              <option>群馬県</option>
+              <option>埼玉県</option>
+              <option>千葉県</option>
+              <option>東京都</option>
+              <option>神奈川県</option>
+              <option>新潟県</option>
+              <option>富山県</option>
+              <option>石川県</option>
+              <option>福井県</option>
+              <option>山梨県</option>
+              <option>長野県</option>
+              <option>岐阜県</option>
+              <option>静岡県</option>
+              <option>愛知県</option>
+              <option>三重県</option>
+              <option>滋賀県</option>
+              <option>京都府</option>
+              <option>大阪府</option>
+              <option>兵庫県</option>
+              <option>奈良県</option>
+              <option>和歌山県</option>
+              <option>鳥取県</option>
+              <option>島根県</option>
+              <option>岡山県</option>
+              <option>広島県</option>
+              <option>山口県</option>
+              <option>徳島県</option>
+              <option>香川県</option>
+              <option>愛媛県</option>
+              <option>高知県</option>
+              <option>福岡県</option>
+              <option>佐賀県</option>
+              <option>長崎県</option>
+              <option>熊本県</option>
+              <option>大分県</option>
+              <option>宮崎県</option>
+              <option>鹿児島県</option>
+              <option>沖縄県</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label>📍 地域名（市町村など）</label>
+            <input type="text" id="input-region" placeholder="例：札幌・余市・上富良野など" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>🌾 Style カテゴリ</label>
+            <select id="input-style-category" onchange="updateStyleOptions()">
+              <option value="">カテゴリを選ぶ</option>
+              <option value="IPA">①IPA系</option>
+              <option value="ペールエール">②ペールエール系</option>
+              <option value="エール">③その他エール系</option>
+              <option value="ピルスナー">④ピルスナー系</option>
+              <option value="ラガー">⑤ラガー系</option>
+              <option value="白ビール">⑥白ビール系</option>
+              <option value="黒ビール">⑦黒ビール系</option>
+              <option value="フルーツ">⑧フルーツビール系</option>
+              <option value="スペシャルティ">⑨スペシャルティ系</option>
+              <option value="ノンアル">⑩ノンアルコール系</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>🌾 Style 銘柄スタイル</label>
+            <select id="input-style">
+              <option value="">先にカテゴリを選んでね</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label>⭐ Rating</label>
+            <div class="rating-group" id="rating-stars">
+              <span data-val="1">🌿</span>
+              <span data-val="2">🌿</span>
+              <span data-val="3">🌿</span>
+              <span data-val="4">🌿</span>
+              <span data-val="5">🌿</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label>📷 Label Photo</label>
+            <div class="image-upload-area" id="upload-area">
+              <input type="file" id="input-image" accept="image/*" />
+              <div class="upload-placeholder" id="upload-placeholder">
+                <span class="upload-icon">🏷️</span>
+                <p>ラベルの写真をタップ / クリックして追加</p>
+                <small>JPG・PNG・WEBP 対応</small>
+              </div>
+              <img id="preview-image" alt="プレビュー" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label>📝 Tasting Notes</label>
+            <textarea id="input-note" placeholder="香り、味、気分…なんでも書いてみよう🌿"></textarea>
+          </div>
+        </div>
+
+        <button class="btn-save" onclick="saveEntry()">🌿 日記に書き留める</button>
+      </section>
+
+      <section class="entries-section">
+        <h2 class="section-title">📚 これまでの記録</h2>
+        <div id="entries-list">
+          <div class="empty-state">🌱<br>まだ記録がありません。<br>最初の一杯を記録しましょう！</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ボタニカルフッター -->
+  <svg class="botanical-svg" viewBox="0 0 680 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+    style="margin-top:12px;">
+    <path
+      d="M0 20 Q 40 5, 80 20 Q 120 35, 160 20 Q 200 5, 240 20 Q 280 35, 320 20 Q 360 5, 400 20 Q 440 35, 480 20 Q 520 5, 560 20 Q 600 35, 640 20 Q 660 13, 680 20"
+      stroke="#7a9e6a" stroke-width="1.5" fill="none" />
+    <ellipse cx="80" cy="30" rx="7" ry="3.5" fill="#7a9e6a" opacity="0.4" transform="rotate(15 80 30)" />
+    <ellipse cx="320" cy="8" rx="7" ry="3.5" fill="#b07050" opacity="0.35" transform="rotate(-10 320 8)" />
+    <ellipse cx="560" cy="30" rx="7" ry="3.5" fill="#7a9e6a" opacity="0.4" transform="rotate(15 560 30)" />
+    <circle cx="160" cy="8" r="3" fill="#d4a84b" opacity="0.5" />
+    <circle cx="480" cy="8" r="3" fill="#d4a84b" opacity="0.5" />
+  </svg>
+
+  <footer class="site-footer">
+    <div class="footer-author">AYA</div>
+    <div class="footer-copy">✦ Handcrafted with love, hops & botanicals ✦</div>
+    <div class="footer-disclaimer">
+      ※ これは、DREAMBEERの美味しさに感動し、クラフトビールにハマってしまった作者の趣味アプリです。<br>
+      取り扱い銘柄は載せさせて頂いておりますが、DREAMBEER様非公式の趣味アプリです。<br>
+      DREAMBEER様、いつもありがとうございます 🍺
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('input-date').valueAsDate = new Date();
+
+    const styleOptions = {
+      'IPA': [
+        'IPA(インディアペールエール)',
+        'セッションIPA',
+        'Hazy IPA',
+        'West Coast IPA',
+        'Red Rye IPA',
+        'Chili IPA',
+        'ブリュットIPA',
+        'ホワイトIPA',
+      ],
+      'ペールエール': [
+        'ペールエール',
+      ],
+      'エール': [
+        'ゴールデンエール',
+        'アンバーエール',
+        'ライトエール',
+        'レッドエール',
+        'ケルシュ',
+        'セゾン',
+        'アルト',
+        'スコティッシュエール',
+        'セッションエール',
+        'ブラウンエール',
+        '玄米エール',
+        'ライスエール',
+        '緑茶エール',
+        'ヘラーボック',
+        'ベルジャンダブル',
+      ],
+      'ピルスナー': [
+        'ピルスナー',
+      ],
+      'ラガー': [
+        'ラガー',
+        'デュンケル',
+        'アメリカンラガー',
+        'アンバーラガー',
+        'インディアペールラガー',
+        'ライスラガー',
+        'ウインナーラガー',
+        'ヘレス',
+        'メルツェン',
+        'ウィートラガー',
+        'カルフォルニア コモン',
+        'Brut IPL',
+      ],
+      '白ビール': [
+        'ヴァイツェン',
+        'ベルジャンホワイト',
+        'ホワイトエール',
+        'ウィートエール',
+        'ヴァィツェンボック',
+      ],
+      '黒ビール': [
+        'スタウト',
+        'ポーター',
+        'シュヴァルツ',
+        'ベルジャンダークエール',
+      ],
+      'フルーツ': [
+        'ゆずエール',
+        'フルーツビール',
+      ],
+      'スペシャルティ': [
+        'サワーエール',
+        'ハーブ＆スパイス',
+        '酒イースト',
+      ],
+      'ノンアル': [
+        'ノンアルコールビール',
+      ],
+    };
+
+    function updateStyleOptions() {
+      const category = document.getElementById('input-style-category').value;
+      const styleSelect = document.getElementById('input-style');
+      if (!category) {
+        styleSelect.innerHTML = '<option value="">先にカテゴリを選んでね</option>';
+        return;
+      }
+      styleSelect.innerHTML = '<option value="">スタイルを選ぶ</option>' +
+        styleOptions[category].map(s => `<option>${s}</option>`).join('');
+    }
+
+    let currentImageData = null;
+
+    document.getElementById('input-image').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        alert('画像が少し大きすぎます💦\n2MB以下の画像を使ってください！');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        currentImageData = ev.target.result;
+        const preview = document.getElementById('preview-image');
+        const placeholder = document.getElementById('upload-placeholder');
+        preview.src = currentImageData;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    let currentRating = 0;
+    const stars = document.querySelectorAll('.rating-group span');
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        currentRating = parseInt(star.dataset.val);
+        updateStars();
+      });
+      star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.val)));
+      star.addEventListener('mouseout', () => updateStars());
+    });
+
+    function highlightStars(val) {
+      stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= val));
+    }
+
+    function updateStars() {
+      stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= currentRating));
+    }
+
+    function saveEntry() {
+      const entry = {
+        id: Date.now(),
+        date: document.getElementById('input-date').value,
+        name: document.getElementById('input-name').value.trim(),
+        brewery: document.getElementById('input-brewery').value.trim(),
+        prefecture: document.getElementById('input-prefecture').value,
+        region: document.getElementById('input-region').value.trim(),
+        category: document.getElementById('input-style-category').value,
+        style: document.getElementById('input-style').value,
+        rating: currentRating,
+        note: document.getElementById('input-note').value.trim(),
+        image: currentImageData,
+      };
+
+      if (!entry.name) { alert('ビールの名前を入力してください🍺'); return; }
+
+      const entries = JSON.parse(localStorage.getItem('beerDiary') || '[]');
+      entries.unshift(entry);
+      localStorage.setItem('beerDiary', JSON.stringify(entries));
+
+      resetForm();
+      renderEntries();
+    }
+
+    function resetForm() {
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-brewery').value = '';
+      document.getElementById('input-prefecture').value = '';
+      document.getElementById('input-region').value = '';
+      document.getElementById('input-style-category').value = '';
+      document.getElementById('input-note').value = '';
+      document.getElementById('input-date').valueAsDate = new Date();
+      document.getElementById('input-image').value = '';
+      document.getElementById('preview-image').style.display = 'none';
+      document.getElementById('upload-placeholder').style.display = 'block';
+      updateStyleOptions();
+      currentImageData = null;
+      currentRating = 0;
+      updateStars();
+    }
+
+    function renderEntries() {
+      const entries = JSON.parse(localStorage.getItem('beerDiary') || '[]');
+      const list = document.getElementById('entries-list');
+
+      if (entries.length === 0) {
+        list.innerHTML = '<div class="empty-state">🌱<br>まだ記録がありません。<br>最初の一杯を記録しましょう！</div>';
+        return;
+      }
+
+      list.innerHTML = entries.map(e => `
+        <div class="entry-card">
+          <div class="entry-body">
+            <div class="entry-date">${formatDate(e.date)}</div>
+            <div class="entry-name">${e.name}</div>
+            <div class="entry-meta">
+              ${e.brewery ? '🏭 ' + e.brewery : ''}
+              ${e.prefecture ? ' &nbsp;📍 ' + e.prefecture : ''}
+              ${e.region ? ' ' + e.region : ''}
+              ${e.category ? ' &nbsp;🌾 ' + e.category : ''}
+              ${e.style ? ' › ' + e.style : ''}
+            </div>
+            ${e.note ? '<div class="entry-note">' + e.note + '</div>' : ''}
+            <div class="entry-stars">${'🌿'.repeat(e.rating)}</div>
+          </div>
+          ${e.image ? '<img class="entry-img" src="' + e.image + '" alt="ラベル"/>' : ''}
+        </div>
+      `).join('');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    renderEntries();
+  </script>
+
+</body>
+
+</html>
