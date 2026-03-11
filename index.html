@@ -8,7 +8,7 @@
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@window._supabaseClient/window._supabaseClient-js@2';
-    window._window._supabaseClientClient = createClient(
+    window._window._supabaseClient = createClient(
       'https://dekcnvdhyucoolfkkdu.window._supabaseClient.co',
       'sb_publishable_Yhs7v0HqhzVOewWYuKvorw_kUvrEcoZ'
     );
@@ -917,7 +917,7 @@
         return;
       }
 
-      const { error } = await window._window._supabaseClientClient
+      const { error } = await window._window._supabaseClient
         .from('beer_entries')
         .insert([entry]);
 
@@ -950,7 +950,7 @@
     async function renderEntries() {
       const list = document.getElementById('entries-list');
 
-      const { data: entries, error } = await window._window._supabaseClientClient
+      const { data: entries, error } = await window._window._supabaseClient
         .from('beer_entries')
         .select('*')
         .order('created_at', { ascending: false });
