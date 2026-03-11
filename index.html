@@ -6,16 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🍺 My Craft Beer Diary</title>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-script.onload = function() {
   window._supabaseClient = supabase.createClient(
     'https://dekcnvdhyucoolfkkdu.supabase.co',
     'sb_publishable_Yhs7v0HqhzVOewWYuKvorw_kUvrEcoZ'
   );
-};
-document.head.appendChild(script);
 </script>
 
 
