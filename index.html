@@ -384,6 +384,32 @@
       margin-top: 8px;
     }
 
+    .search-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input,
+    .search-bar select {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #c8b990;
+      padding: 7px 2px;
+      font-family: 'Caveat', cursive;
+      font-size: 1rem;
+      color: #4a3a28;
+      outline: none;
+      width: 100%;
+    }
+
+    .search-bar input:focus,
+    .search-bar select:focus {
+      border-bottom-color: #7a9e6a;
+    }
+
+
     .empty-state {
       text-align: center;
       padding: 36px 20px;
@@ -778,6 +804,74 @@
 
       <section class="entries-section">
         <h2 class="section-title">📚 これまでの記録</h2>
+        <!-- ↓ここに追加 -->
+        <div class="search-bar">
+          <input type="text" id="search-text" placeholder="🔍 ビール名・ブルワリーで検索..." oninput="renderEntries()" />
+          <select id="search-category" onchange="renderEntries()">
+            <option value="">🗂️ カテゴリ すべて</option>
+            <option value="IPA">①IPA系</option>
+            <option value="ペールエール">②ペールエール系</option>
+            <option value="エール">③その他エール系</option>
+            <option value="ピルスナー">④ピルスナー系</option>
+            <option value="ラガー">⑤ラガー系</option>
+            <option value="白ビール">⑥白ビール系</option>
+            <option value="黒ビール">⑦黒ビール系</option>
+            <option value="フルーツ">⑧フルーツビール系</option>
+            <option value="スペシャルティ">⑨スペシャルティ系</option>
+            <option value="ノンアル">⑩ノンアルコール系</option>
+          </select>
+          <select id="search-prefecture" onchange="renderEntries()">
+            <option value="">📍 都道府県 すべて</option>
+            <option value="北海道">北海道</option>
+            <option value="青森県">青森県</option>
+            <option value="岩手県">岩手県</option>
+            <option value="宮城県">宮城県</option>
+            <option value="秋田県">秋田県</option>
+            <option value="山形県">山形県</option>
+            <option value="福島県">福島県</option>
+            <option value="茨城県">茨城県</option>
+            <option value="栃木県">栃木県</option>
+            <option value="群馬県">群馬県</option>
+            <option value="埼玉県">埼玉県</option>
+            <option value="千葉県">千葉県</option>
+            <option value="東京都">東京都</option>
+            <option value="神奈川県">神奈川県</option>
+            <option value="新潟県">新潟県</option>
+            <option value="富山県">富山県</option>
+            <option value="石川県">石川県</option>
+            <option value="福井県">福井県</option>
+            <option value="山梨県">山梨県</option>
+            <option value="長野県">長野県</option>
+            <option value="岐阜県">岐阜県</option>
+            <option value="静岡県">静岡県</option>
+            <option value="愛知県">愛知県</option>
+            <option value="三重県">三重県</option>
+            <option value="滋賀県">滋賀県</option>
+            <option value="京都府">京都府</option>
+            <option value="大阪府">大阪府</option>
+            <option value="兵庫県">兵庫県</option>
+            <option value="奈良県">奈良県</option>
+            <option value="和歌山県">和歌山県</option>
+            <option value="鳥取県">鳥取県</option>
+            <option value="島根県">島根県</option>
+            <option value="岡山県">岡山県</option>
+            <option value="広島県">広島県</option>
+            <option value="山口県">山口県</option>
+            <option value="徳島県">徳島県</option>
+            <option value="香川県">香川県</option>
+            <option value="愛媛県">愛媛県</option>
+            <option value="高知県">高知県</option>
+            <option value="福岡県">福岡県</option>
+            <option value="佐賀県">佐賀県</option>
+            <option value="長崎県">長崎県</option>
+            <option value="熊本県">熊本県</option>
+            <option value="大分県">大分県</option>
+            <option value="宮崎県">宮崎県</option>
+            <option value="鹿児島県">鹿児島県</option>
+            <option value="沖縄県">沖縄県</option>
+          </select>
+        </div>
+
         <div id="entries-list">
           <div class="empty-state">🌱<br>まだ記録がありません。<br>最初の一杯を記録しましょう！</div>
         </div>
@@ -1059,7 +1153,27 @@
         return;
       }
 
-      list.innerHTML = entries.map(e => `
+      const searchText = document.getElementById('search-text')?.value.toLowerCase() || '';
+      const searchCategory = document.getElementById('search-category')?.value || '';
+      const searchPrefecture = document.getElementById('search-prefecture')?.value || '';
+
+      const filtered = entries.filter(e => {
+        const matchText = !searchText ||
+          (e.name && e.name.toLowerCase().includes(searchText)) ||
+          (e.brewery && e.brewery.toLowerCase().includes(searchText));
+        const matchCategory = !searchCategory || e.category === searchCategory;
+        const matchPrefecture = !searchPrefecture || e.prefecture === searchPrefecture;
+        return matchText && matchCategory && matchPrefecture;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state">🔍 該当する記録がありません</div>';
+        return;
+      }
+
+
+
+      list.innerHTML = filtered.map(e => `
     <div class="entry-card">
       <div class="entry-body">
         <div class="entry-date">${formatDate(e.date)}</div>
