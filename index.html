@@ -839,12 +839,23 @@
     function updateStyleOptions() {
       const category = document.getElementById('input-style-category').value;
       const styleSelect = document.getElementById('input-style');
+      styleSelect.innerHTML = '';
+
       if (!category) {
         styleSelect.innerHTML = '<option value="">先にカテゴリを選んでね</option>';
         return;
       }
-      styleSelect.innerHTML = '<option value="">スタイルを選ぶ</option>' +
-        styleOptions[category].map(s => `<option>${s}</option>`).join('');
+
+      styleOptions[category].forEach(style => {
+        const option = document.createElement('option');
+        option.value = style;
+        option.textContent = style;
+        styleSelect.appendChild(option);
+      });
+    }
+
+    styleSelect.innerHTML = '<option value="">スタイルを選ぶ</option>' +
+      styleOptions[category].map(s => `<option>${s}</option>`).join('');
     }
 
     let currentImageData = null;
