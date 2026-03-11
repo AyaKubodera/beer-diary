@@ -6,16 +6,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🍺 My Craft Beer Diary</title>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    function initSupabase() {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        window._supabaseClient = supabase.createClient(
+          'https://dekcnvdhyucoolfkkdu.supabase.co',
+          'sb_publishable_Yhs7v0HqhzVOewWYuKvorw_kUvrEcoZ'
+        );
+        console.log('Supabase OK!', window._supabaseClient);
+      } else {
+        setTimeout(initSupabase, 100);
+      }
+    }
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    window._supabaseClient = supabase.createClient(
-      'https://dekcnvdhyucoolfkkdu.supabase.co',
-      'sb_publishable_Yhs7v0HqhzVOewWYuKvorw_kUvrEcoZ'
-    );
-  });
-</script>
+    const supaScript = document.createElement('script');
+    supaScript.src = 'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js';
+    supaScript.onload = initSupabase;
+    document.head.appendChild(supaScript);
+  </script>
+
 
 
   <link
