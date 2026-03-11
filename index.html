@@ -929,7 +929,7 @@
         return;
       }
 
-      const { error } = await window._window._supabaseClient
+      const { error } = await window._supabaseClient
         .from('beer_entries')
         .insert([entry]);
 
