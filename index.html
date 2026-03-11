@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🍺 My Craft Beer Diary</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link
     href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Noto+Serif+JP:wght@400;600&display=swap"
     rel="stylesheet" />
@@ -749,7 +750,15 @@
     </div>
   </footer>
 
+
   <script>
+
+    // Supabase接続設定
+    const SUPABASE_URL = 'https://dekcnvdhyucoolfkkdu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Yhs7v0HqhzVOewWYuKvorw_kUvrEcoZ';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
     document.getElementById('input-date').valueAsDate = new Date();
 
     const styleOptions = {
@@ -879,9 +888,8 @@
       stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= currentRating));
     }
 
-    function saveEntry() {
+    async function saveEntry() {
       const entry = {
-        id: Date.now(),
         date: document.getElementById('input-date').value,
         name: document.getElementById('input-name').value.trim(),
         brewery: document.getElementById('input-brewery').value.trim(),
@@ -891,14 +899,22 @@
         style: document.getElementById('input-style').value,
         rating: currentRating,
         note: document.getElementById('input-note').value.trim(),
-        image: currentImageData,
+        image: currentImageData
       };
 
-      if (!entry.name) { alert('ビールの名前を入力してください🍺'); return; }
+      if (!entry.name) {
+        alert('ビールの名前を入力してください🍺');
+        return;
+      }
 
-      const entries = JSON.parse(localStorage.getItem('beerDiary') || '[]');
-      entries.unshift(entry);
-      localStorage.setItem('beerDiary', JSON.stringify(entries));
+      const { error } = await supabase
+        .from('beer_entries')
+        .insert([entry]);
+
+      if (error) {
+        alert('保存に失敗しました💦\n' + error.message);
+        return;
+      }
 
       resetForm();
       renderEntries();
@@ -921,34 +937,47 @@
       updateStars();
     }
 
-    function renderEntries() {
-      const entries = JSON.parse(localStorage.getItem('beerDiary') || '[]');
+    async function renderEntries() {
       const list = document.getElementById('entries-list');
 
+      const { data: entries, error } = await supabase
+        .from('beer_entries')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        list.innerHTML = '<div class="empty-state">読み込みに失敗しました💦</div>';
+        return;
+      }
+
       if (entries.length === 0) {
-        list.innerHTML = '<div class="empty-state">🌱<br>まだ記録がありません。<br>最初の一杯を記録しましょう！</div>';
+        list.innerHTML = `
+      <div class="empty-state">
+        🌱<br>まだ記録がありません。<br>最初の一杯を記録しましょう！
+      </div>`;
         return;
       }
 
       list.innerHTML = entries.map(e => `
-        <div class="entry-card">
-          <div class="entry-body">
-            <div class="entry-date">${formatDate(e.date)}</div>
-            <div class="entry-name">${e.name}</div>
-            <div class="entry-meta">
-              ${e.brewery ? '🏭 ' + e.brewery : ''}
-              ${e.prefecture ? ' &nbsp;📍 ' + e.prefecture : ''}
-              ${e.region ? ' ' + e.region : ''}
-              ${e.category ? ' &nbsp;🌾 ' + e.category : ''}
-              ${e.style ? ' › ' + e.style : ''}
-            </div>
-            ${e.note ? '<div class="entry-note">' + e.note + '</div>' : ''}
-            <div class="entry-stars">${'🌿'.repeat(e.rating)}</div>
-          </div>
-          ${e.image ? '<img class="entry-img" src="' + e.image + '" alt="ラベル"/>' : ''}
+    <div class="entry-card">
+      <div class="entry-body">
+        <div class="entry-date">${formatDate(e.date)}</div>
+        <div class="entry-name">${e.name}</div>
+        <div class="entry-meta">
+          ${e.brewery ? '🏭 ' + e.brewery : ''}
+          ${e.prefecture ? '&nbsp;📍' + e.prefecture : ''}
+          ${e.region ? ' ' + e.region : ''}
+          ${e.category ? '&nbsp;🍺 ' + e.category : ''}
+          ${e.style ? ' / ' + e.style : ''}
         </div>
-      `).join('');
+        ${e.note ? '<div class="entry-note">' + e.note + '</div>' : ''}
+        <div class="entry-stars">${'🌿'.repeat(e.rating)}</div>
+      </div>
+      ${e.image ? '<img class="entry-img" src="' + e.image + '">' : ''}
+    </div>
+  `).join('');
     }
+
 
     function formatDate(dateStr) {
       if (!dateStr) return '';
@@ -956,7 +985,9 @@
       return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 
+    // localStorageの古いデータは使わない
     renderEntries();
+
   </script>
 
 </body>
