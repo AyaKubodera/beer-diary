@@ -297,6 +297,25 @@
       color: #fdf8f0;
     }
 
+    .btn-edit {
+      margin-top: 10px;
+      padding: 5px 12px;
+      background: transparent;
+      color: #5c7a4e;
+      font-family: 'Caveat', cursive;
+      font-size: 0.9rem;
+      border: 1px solid #5c7a4e;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-edit:hover {
+      background: #5c7a4e;
+      color: #fdf8f0;
+    }
+
+
     .btn-save:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(90, 130, 70, 0.4);
@@ -971,6 +990,35 @@
       renderEntries();
     }
 
+    async function editEntry(id) {
+      const { data, error } = await window._supabaseClient
+        .from('beer_entries')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) { alert('読み込みに失敗しました💦'); return; }
+
+      document.getElementById('input-date').value = data.date;
+      document.getElementById('input-name').value = data.name;
+      document.getElementById('input-brewery').value = data.brewery || '';
+      document.getElementById('input-prefecture').value = data.prefecture || '';
+      document.getElementById('input-region').value = data.region || '';
+      document.getElementById('input-style-category').value = data.category || '';
+      updateStyleOptions();
+      document.getElementById('input-style').value = data.style || '';
+      document.getElementById('input-note').value = data.note || '';
+      currentRating = data.rating || 0;
+      updateStars();
+
+      await window._supabaseClient
+        .from('beer_entries')
+        .delete()
+        .eq('id', id);
+
+      renderEntries();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
 
     function resetForm() {
       document.getElementById('input-name').value = '';
@@ -1026,6 +1074,8 @@
         ${e.note ? '<div class="entry-note">' + e.note + '</div>' : ''}
 <div class="entry-stars">${'🌿'.repeat(e.rating)}</div>
         <button onclick="deleteEntry(${e.id})" class="btn-delete">🗑️ 削除</button>
+<button onclick="editEntry(${e.id})" class="btn-edit">✏️ 編集</button>
+
       </div>
       ${e.image ? '<img class="entry-img" src="' + e.image + '">' : ''}
     </div>
